@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/texttypeManage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="typeManage" />
+                <EditText
+                    android:id="@+id/typeManage"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textCmdTimeout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="CmdTimeout" />
+                <EditText
+                    android:id="@+id/CmdTimeout"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textStabRoll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="StabRoll(rP)" />
+                <EditText
+                    android:id="@+id/StabRoll"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textStabPitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:text="StabPitch(rI)" />
+                <EditText
+                    android:id="@+id/StabPitch"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textStabYaw"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:text="StabYaw(rD)" />
+                <EditText
+                    android:id="@+id/StabYaw"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textStabAngelPitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="StabAngelPitch(CL)" />
+                <EditText
+                    android:id="@+id/StabAngelPitch"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textStabAngelRoll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="StabAngelRoll" />
+                <EditText
+                    android:id="@+id/StabAngelRoll"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textStabKoeffManage1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="StabKoeffMan1(prM)" />
+                <EditText
+                    android:id="@+id/StabKoeffManage1"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textStabKoeffManage2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="StabKoeffManage2" />
+                <EditText
+                    android:id="@+id/StabKoeffManage2"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textStabServo1"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:text="StabServo1(pP)" />
+                <EditText
+                    android:id="@+id/StabServo1"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textStabServo2"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:text="StabServo2(pI)" />
+                <EditText
+                    android:id="@+id/StabServo2"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textStabKoeffCh1"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:text="StabKoeffCh1(pD)" />
+                <EditText
+                    android:id="@+id/StabKoeffCh1"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textStabKoeffCh2"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:text="StabKoeffCh2(mux)" />
+                <EditText
+                    android:id="@+id/StabKoeffCh2"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textpos_rev"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:text="pos_rev" />
+                <EditText
+                    android:id="@+id/pos_rev"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textpos_ang1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="pos_ang1" />
+                <EditText
+                    android:id="@+id/pos_ang1"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textpos_ang2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="pos_ang2" />
+                <EditText
+                    android:id="@+id/pos_ang2"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textStabServoMax1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="StabServoMax1(Am)" />
+                <EditText
+                    android:id="@+id/StabServoMax1"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textStabServoMax2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="StabServoMax2(yP)" />
+                <EditText
+                    android:id="@+id/StabServoMax2"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textmath_K_angle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="math_K_angle(yI)" />
+                <EditText
+                    android:id="@+id/math_K_angle"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textmath_K_bias"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="math_K_bias(yD)" />
+                <EditText
+                    android:id="@+id/math_K_bias"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textmath_K_measure"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="math_K_measure(yM)" />
+                <EditText
+                    android:id="@+id/math_K_measure"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textmath_gyroRate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="math_gyroRate" />
+                <EditText
+                    android:id="@+id/math_gyroRate"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textROLL_INVERSION"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="roll_inv" />
+                <EditText
+                    android:id="@+id/ROLL_INVERSION"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textROLL_RANGEVALUE"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="roll_range" />
+                <EditText
+                    android:id="@+id/ROLL_RANGEVALUE"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textPITCH_INVERSION"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="pitch_inv" />
+                <EditText
+                    android:id="@+id/PITCH_INVERSION"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textPITCH_RANGEVALUE"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="pitch_range" />
+                <EditText
+                    android:id="@+id/PITCH_RANGEVALUE"
+                    android:layout_width="100px"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number" />
+            </LinearLayout>
+
+
+
+            </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/textExp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="exp" />
+                    <EditText
+                        android:id="@+id/manageExp"
+                        android:layout_width="100px"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:inputType="number" />
+                </LinearLayout>
+        </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textSERVO1_TYPEMOVE"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="servo1_TM" />
+                <Spinner
+                    android:id="@+id/SERVO1_TYPEMOVE"
+                    android:layout_width="200dp"
+                    android:layout_height="30dp"
+                    android:entries="@array/motorTypeMove"/>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textSERVO2_TYPEMOVE"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="servo1_TM" />
+                <Spinner
+                    android:id="@+id/SERVO2_TYPEMOVE"
+                    android:layout_width="200dp"
+                    android:layout_height="30dp"
+                    android:entries="@array/motorTypeMove"/>
+            </LinearLayout>
+
+
+            <Button
+                android:id="@+id/btnApply"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Apply" />
+
+
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/toChange"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="servo1_TM" />
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:max="255"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/toChangeIndic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="255" />
+
+        <SeekBar
+            android:id="@+id/sb_Motor"
+            android:max="255"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content" />
+
+
+        <Button
+            android:id="@+id/btnReset"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="reset" />
+
+    </LinearLayout>
+</LinearLayout>
