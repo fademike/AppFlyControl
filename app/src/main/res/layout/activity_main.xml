@@ -243,8 +243,8 @@
             android:gravity="bottom"
             android:orientation="horizontal">
 
-            <com.example.appflycontrol.Element
-                android:id="@+id/element1"
+            <com.example.appflycontrol.Joystick
+                android:id="@+id/joystick_L"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
@@ -350,8 +350,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent">
 
-                            <com.example.appflycontrol.Element
-                                android:id="@+id/element2"
+                            <com.example.appflycontrol.Joystick
+                                android:id="@+id/joystick_R"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" />
                         </TableRow>
