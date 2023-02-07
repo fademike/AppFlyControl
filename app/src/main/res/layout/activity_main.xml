@@ -25,17 +25,6 @@
                 android:layout_height="wrap_content"
                 android:entries="@array/typeConnection"/>
 
-            <Button
-                android:id="@+id/btn1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="CONNECT" />
-
-            <Button
-                android:id="@+id/btn2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="DISCONNECT" />
 
             <Button
                 android:id="@+id/btn3"

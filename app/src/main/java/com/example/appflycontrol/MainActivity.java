@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.UUID;
 import java.io.OutputStream;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -43,6 +44,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
@@ -51,6 +53,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,6 +72,7 @@ import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+
 import android.widget.ArrayAdapter;
 
 import android.bluetooth.BluetoothSocket;
@@ -78,11 +84,13 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "test";//TcpClient.class.getSimpleName();
 
-    public enum TypeConnection { VCP, WIFI, BT }
+    public enum TypeConnection {VCP, WIFI, BT}
+
     public TypeConnection typeConnection = TypeConnection.VCP;
 
     public static SharedPreferences mSettings;
 
+    public static ParamList mParams;
 
     UdpClient udpCliect;
 ///// BT
@@ -108,44 +116,44 @@ public class MainActivity extends AppCompatActivity {
     static TcpClient mTcpClient;
     static UdpClient mUdpClient;
     static TextView tv1, tv2, tv3, tv4, tv5;
-    static Button btn1, btn2, btn3, btnSettings, btnLight, btnApplyDev, ConnectBT, btnExit, btnPowerOff, btnTemp;
+    static Button btn3, btnSettings, btnLight, btnApplyDev, ConnectBT, btnExit, btnPowerOff, btnTemp;
 
     static Switch sw1, sw2, switchTRIM;
 
     static SeekBar sb_yaw;
 
-    public int time_t=0;
+    public int time_t = 0;
 
-    public static int typeManage=0;
-    public static int StabRoll=0;
-    public static int StabPitch=0;
-    public static int StabYaw=0;
-    public static int StabAngelPitch=0;
-    public static int StabAngelRoll=0;
-    public static int StabKoeffManage1=127;
-    public static int StabKoeffManage2=127;
-    public static int StabServo1=0;
-    public static int StabServo2=0;
-    public static int StabKoeffCh1=127;
-    public static int StabKoeffCh2=127;
-    public static int pos_rev=0;
-    public static int pos_ang1=3;
-    public static int pos_ang2=19;
-    public static int StabServoMax1=127;
-    public static int StabServoMax2=127;
-    public static int CmdTimeout=20;
-    public static int math_K_angle=1;
-    public static int math_K_bias=3;
-    public static int math_K_measure=30;
-    public static int math_gyroRate=131;
-    public static int manageExp=50;
+    public static int typeManage = 0;
+    public static int StabRoll = 0;
+    public static int StabPitch = 0;
+    public static int StabYaw = 0;
+    public static int StabAngelPitch = 0;
+    public static int StabAngelRoll = 0;
+    public static int StabKoeffManage1 = 127;
+    public static int StabKoeffManage2 = 127;
+    public static int StabServo1 = 0;
+    public static int StabServo2 = 0;
+    public static int StabKoeffCh1 = 127;
+    public static int StabKoeffCh2 = 127;
+    public static int pos_rev = 0;
+    public static int pos_ang1 = 3;
+    public static int pos_ang2 = 19;
+    public static int StabServoMax1 = 127;
+    public static int StabServoMax2 = 127;
+    public static int CmdTimeout = 20;
+    public static int math_K_angle = 1;
+    public static int math_K_bias = 3;
+    public static int math_K_measure = 30;
+    public static int math_gyroRate = 131;
+    public static int manageExp = 50;
 
-    public static int ROLL_INVERSION=0;
-    public static int ROLL_RANGEVALUE=254;
-    public static int PITCH_INVERSION=0;
-    public static int PITCH_RANGEVALUE=254;
-    public static int SERVO1_TYPEMOVE=0;
-    public static int SERVO2_TYPEMOVE=0;
+    public static int ROLL_INVERSION = 0;
+    public static int ROLL_RANGEVALUE = 254;
+    public static int PITCH_INVERSION = 0;
+    public static int PITCH_RANGEVALUE = 254;
+    public static int SERVO1_TYPEMOVE = 0;
+    public static int SERVO2_TYPEMOVE = 0;
 
     static TextView tvVoltage, tvTemp, tvPress;
 
@@ -159,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
     private MyTimerTask mMyTimerTask;
 
 
-    static float param[];
+//    static float param[];
 
 //class newData{
 //    boolean update;
@@ -173,12 +181,12 @@ public class MainActivity extends AppCompatActivity {
 
 //    static newData rxNewData;
 
-    char [][] rxMSG;
+    char[][] rxMSG;
 
     int sb_yaw_pos = 0;
 
-    MAVLinkPacket headerPacket;
-    byte mavlink_cnt;
+    static MAVLinkPacket headerPacket;
+    static byte mavlink_cnt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,7 +200,9 @@ public class MainActivity extends AppCompatActivity {
         headerPacket.sysid = 1;
         headerPacket.compid = 0;
 
-        param = new float[255];
+//        param = new float[255];
+
+        mParams = new ParamList();
 
         //rxNewData = new newData();
 
@@ -209,16 +219,12 @@ public class MainActivity extends AppCompatActivity {
         joystick_L = (Joystick) findViewById(R.id.joystick_L);
         joystick_R = (Joystick) findViewById(R.id.joystick_R);
 
-        joystick_L.n_x=joystick_L.x_Width/2;
-        joystick_L.n_y=joystick_L.y_Height-joystick_L.sqrSize;
+        joystick_L.n_x = joystick_L.x_Width / 2;
+        joystick_L.n_y = joystick_L.y_Height - joystick_L.sqrSize;
         joystick_L.y_ret = false;
-        joystick_L.y = joystick_L.y_Height-joystick_L.sqrSize;
+        joystick_L.y = joystick_L.y_Height - joystick_L.sqrSize;
 
 
-        btn1 = (Button) findViewById(R.id.btn1);
-        btn1.setText("Connect");
-        btn2 = (Button) findViewById(R.id.btn2);
-        btn2.setText("Disconnect");
         btn3 = (Button) findViewById(R.id.btn3);
         btn3.setText("Reset");
         btnSettings = (Button) findViewById(R.id.btnSettings);
@@ -248,81 +254,17 @@ public class MainActivity extends AppCompatActivity {
         tvTemp.setText("tvTemp");
         tvPress.setText("tvPress");
 
-        btn1.setOnClickListener(new View.OnClickListener() {    //Connect
-            @Override
-            public void onClick(View v) {
-////int type = (int)TypeConnection.WIFI;
-//                if (spTypeConnection.getSelectedItemPosition() == 0)typeConnection = TypeConnection.VCP;
-//                else if (spTypeConnection.getSelectedItemPosition() == 1)typeConnection = TypeConnection.WIFI;
-//                else if (spTypeConnection.getSelectedItemPosition() == 2)typeConnection = TypeConnection.BT;
-//
-//                if (typeConnection == TypeConnection.VCP) btn1.setText("VCP");
-//                else if (typeConnection == TypeConnection.WIFI) btn1.setText("WIFI");
-//                else if (typeConnection == TypeConnection.BT) btn1.setText("BT");
-//
-//                if (typeConnection == TypeConnection.WIFI)
-//                {
-//                    //tv1.setText("Connection...");
-//                    Log.d("test", "Connection...");
-//                    tv4.setText("Status: Connection...");
-//                    //new ConnectTask().execute("");
-//
-//                    udpCliect = new UdpClient("192.168.12.221", 14550, 1000);
-//
-//                }
-//                udpCliect = new UdpClient("192.168.12.221", 5020, 1000);
-//                //String addr = "192.168.12.221";
-//                //udpCliect = new UdpClient("127.0.0.1", 2000, 100);
 
-
-                new ConnectUdpTask().execute("");
-            }
-        });
-        btnTemp = (Button)findViewById(R.id.btnTemp);
+        btnTemp = (Button) findViewById(R.id.btnTemp);
         btnTemp.setOnClickListener(new View.OnClickListener() {    //Temp
             @Override
             public void onClick(View v) {
 
-//                Thread client_thread = new Thread(new UdpClient(),"client_thread");
-//                client_thread.start();
+                mav_param_request_list();
 
-                //mav_send_HB();
-
-//                msg_heartbeat init_HB = new msg_heartbeat((long)0, (short)0, (short)0, (short)0, (short)0, (short)2, (int)0, (short)0, true);
-//                //MAVLinkPacket packet_HB = new msg_heartbeat( init_HB.custom_mode, init_HB.type, init_HB.autopilot, init_HB.base_mode, init_HB.system_status, init_HB.mavlink_version, init_HB.sysid, init_HB.compid, init_HB.isMavlink2).pack();
-//                MAVLinkPacket packet_HB = init_HB.pack();
-//                packet_HB.seq = mavlink_cnt++;
-//                byte[] buffer = packet_HB.encodePacket();
-//                mUdpClient.sendMessageByte(buffer);
-
-                mav_param_set("pid_p", 12.5f);
-
-                //mUdpClient.sendMessage("Message");
             }
         });
-        btn2.setOnClickListener(new View.OnClickListener() {    //Disconnect
-            @Override
-            public void onClick(View v) {
 
-                if (typeConnection == TypeConnection.WIFI) {
-                    //tv1.setText("Disconnect...");
-
-//                    if (udpCliect != null){
-//                        udpCliect.close();
-//                    }
-                    if (mTcpClient != null) {
-                        mTcpClient.stopClient();
-                    }
-                    if (mUdpClient != null) {
-                        mUdpClient.stopClient();
-                    }
-                }
-
-                tv4.setText("Status: Disconnect...");
-                Log.d("test", "Disconnect...");
-                btn1.setText("Connect");
-            }
-        });
         btn3.setOnClickListener(new View.OnClickListener() {    //Send
             @Override
             public void onClick(View v) {
@@ -330,21 +272,18 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("test", "Reset Joy...");
                 //sends the message to the server
 
-//                e1.y = e1.y_Height - e1.sqrSize;
-//                e1.invalidate();
-////                if (mTcpClient != null) {
-////                    mTcpClient.sendMessage("123");
-////                }
             }
         });
-        btnSettings.setOnClickListener(new View.OnClickListener() {    //Send
+        btnSettings.setOnClickListener(new View.OnClickListener() {    //Settings
             @Override
             public void onClick(View v) {
                 //tv1.setText("Send...");
                 Log.d("test", "Go to Second Activity...");
                 //sends the message to the server
 
-                Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+                //Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+                Intent intent = new Intent(MainActivity.this, params_activity.class);//MenuActivity.class);
+                //Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
             }
         });
@@ -359,21 +298,6 @@ public class MainActivity extends AppCompatActivity {
         btnApplyDev.setOnClickListener(new View.OnClickListener() {    //Send
             @Override
             public void onClick(View v) {
-
-//                if (spTypeDevice.getSelectedItemPosition() == 1)
-//                {
-//                    e1.n_x=e1.x_Width/2;
-//                    e1.n_y=e1.y_Height/2;
-//                    e1.y_ret = true;
-//                    e1.y = e1.y_Height/2;
-//                }
-//                else {
-//                    e1.n_x=e1.x_Width/2;
-//                    e1.n_y=e1.y_Height-e1.sqrSize;
-//                    e1.y_ret = false;
-//                    e1.y = e1.y_Height-e1.sqrSize;
-//                }
-
 
             }
         });
@@ -407,15 +331,6 @@ public class MainActivity extends AppCompatActivity {
                     mUdpClient.sendMessageByte(buffer);
                 }
 
-//                //msg_command_long
-//                if (mTcpClient != null) {
-//                    char[] cmd = new char[1000];
-//                    cmd[0] = '$';
-//                    cmd[1] = 1;
-//                    cmd[2] = 1;
-//
-//                    mTcpClient.sendBytes(cmd, 3);
-//                }
             }
         });
 
@@ -430,8 +345,8 @@ public class MainActivity extends AppCompatActivity {
         iw3.setRotation(0);
 
 
-    typeManage = mSettings.getInt("typeManage", 0);
-    StabRoll = mSettings.getInt("StabRoll", 0);
+        typeManage = mSettings.getInt("typeManage", 0);
+        StabRoll = mSettings.getInt("StabRoll", 0);
         StabPitch = mSettings.getInt("StabPitch", 0);
         StabYaw = mSettings.getInt("StabYaw", 0);
         StabAngelPitch = mSettings.getInt("StabAngelPitch", 0);
@@ -462,12 +377,10 @@ public class MainActivity extends AppCompatActivity {
         SERVO2_TYPEMOVE = mSettings.getInt("SERVO2_TYPEMOVE", 0);
 
 
-
-
 //        btAdapter = BluetoothAdapter.getDefaultAdapter();
 //        checkBTState();
 
-    sw1 = (Switch) findViewById(R.id.switch1);
+        sw1 = (Switch) findViewById(R.id.switch1);
         sw2 = (Switch) findViewById(R.id.switch2);
         //sw1.setBackgroundColor(0x5500FF00);
         //sw1.setBackgroundColor(0x55FFFF00);
@@ -483,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
         sb_yaw.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                sb_yaw_pos = 100-progress;
+                sb_yaw_pos = 100 - progress;
             }
 
             @Override
@@ -499,8 +412,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-
     }
 
 
@@ -508,7 +419,6 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         //super.onBackPressed();
     }
-
 
 
     public class ConnectUdpTask extends AsyncTask<String, String, UdpClient> {
@@ -532,7 +442,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
         @Override
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
@@ -543,8 +452,8 @@ public class MainActivity extends AppCompatActivity {
 
             Parser mav_parser = new Parser();
 
-            int cnt=0;
-            for (cnt=0; cnt<mUdpClient.buffer_len;cnt++){
+            int cnt = 0;
+            for (cnt = 0; cnt < mUdpClient.buffer_len; cnt++) {
 
                 MAVLinkPacket packet = mav_parser.mavlink_parse_char(mUdpClient.buffer[cnt]);
                 if (packet != null) {
@@ -556,6 +465,10 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         case msg_sys_status.MAVLINK_MSG_ID_SYS_STATUS:
                             msg_sys_status p_sys_status = new msg_sys_status(packet);
+                            int st_bat = p_sys_status.battery_remaining;
+                            int st_voltage = p_sys_status.voltage_battery;
+                            //Log.d(TAG, "bat remaining  " + st_bat);
+                            tvVoltage.setText("V= " + st_voltage + " mV (" + st_bat + "%)");
                             //Log.d(TAG, "rx sys_status id  " + p_sys_status.msgid);
                             break;
                         case msg_battery_status.MAVLINK_MSG_ID_BATTERY_STATUS:
@@ -563,7 +476,7 @@ public class MainActivity extends AppCompatActivity {
                             //Log.d(TAG, "rx bat  " + rx_pack.battery_remaining);
                             int percent = rx_pack.battery_remaining;
                             int voltage = rx_pack.voltages[0];
-                            tvVoltage.setText("V= " + voltage + " mV");
+                            tvVoltage.setText("V= " + voltage + " mV (" + percent + "%)");
                             break;
                         case msg_param_value.MAVLINK_MSG_ID_PARAM_VALUE:
                             msg_param_value rx_param_value = new msg_param_value(packet);
@@ -571,7 +484,11 @@ public class MainActivity extends AppCompatActivity {
                             String rx_id = new String(rx_param_value.param_id, StandardCharsets.UTF_8);
                             rx_id = rx_id.substring(0, rx_id.indexOf('\0'));
                             Log.d(TAG, "index  " + rx_param_value.param_index + " cnt  " + rx_param_value.param_count +
-                                    " id "+rx_id + " value " + rx_param_value.param_value + " type " + rx_param_value.param_type);
+                                    " id " + rx_id + " value " + rx_param_value.param_value + " type " + rx_param_value.param_type);
+                            ParamList.setParam(rx_param_value.param_index, rx_param_value.param_count, rx_id, rx_param_value.param_value, rx_param_value.param_type);
+                            float progress = ParamList.getProgressParam();
+                            Log.d(TAG, "progress  " + progress + " .  ");
+
                             break;
                         case msg_attitude.MAVLINK_MSG_ID_ATTITUDE:
                             //Log.d(TAG, "rx msg MAVLINK_MSG_ID_ATTITUDE  " + packet.msgid);
@@ -580,18 +497,23 @@ public class MainActivity extends AppCompatActivity {
 //                            tvTemp.setText("t1= "+(float)temp1/100+" t2= " + (float)temp2/100);
 //                            tvPress.setText("Press = " + press + " (" + (int)(press/133.32) + " mmHg)");
 
-                            float pitch = (float)((180*att_pack.pitch)/3.14);//att_pack.pitch;
-                            float roll = (float)((180*att_pack.roll)/3.14);
-                            float yaw = (float)((180*att_pack.yaw)/3.14);//att_pack.yaw;
+                            float pitch = (float) ((180 * att_pack.pitch) / Math.PI);//att_pack.pitch;
+                            float roll = (float) ((180 * att_pack.roll) /  Math.PI);
+                            float yaw = (float) ((180 * att_pack.yaw) /  Math.PI);//att_pack.yaw;
 
-                            tv5.setText("x="+pitch+",y="+roll+",z="+yaw+" ");
+                            pitch = Math.round(pitch*10)/10;
+                            roll = Math.round(roll*10)/10;
+                            yaw = Math.round(yaw*10)/10;
+
+                            tv5.setText("x=" + pitch + ",y=" + roll + ",z=" + yaw + " ");
 
                             Integer imgPitch = Math.round(pitch);
 
                             iw3.setRotation(roll);
                             iw5.setRotation(yaw);
 
-                            iw2.setTop(-1570+(((int)pitch)*225/45));
+                            //iw2.setTop(-1570 + (((int) pitch) * 225 / 45));
+                            iw2.setTop(-1000+(((int)pitch)*160/45));
                             //iw2.setTop(-1040+(((int)pitch)*160/45));
                             break;
                         default:
@@ -605,7 +527,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
 
 
     public class ConnectTcpTask extends AsyncTask<String, String, TcpClient> {
@@ -639,7 +560,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void mav_send_pack(MAVLinkPacket pack){
+    static public void mav_send_pack(MAVLinkPacket pack) {
         pack.seq = mavlink_cnt++;
         //pack.isMavlink2 = false;
         byte[] buffer = pack.encodePacket();
@@ -647,7 +568,7 @@ public class MainActivity extends AppCompatActivity {
         mUdpClient.sendMessageByte(buffer);
     }
 
-    public void mav_send_HB(){
+    public void mav_send_HB() {
         msg_heartbeat init_HB = new msg_heartbeat(headerPacket);
         init_HB.custom_mode = 0;
         init_HB.type = 0;
@@ -661,15 +582,16 @@ public class MainActivity extends AppCompatActivity {
 
     public int init_status = 0;
 
-    public void mav_param_set (String key, float value){
+    public static void mav_param_set(String key, float value, short type) {
         msg_param_set set_param = new msg_param_set(headerPacket);
         set_param.param_id = key.getBytes();
-        set_param.param_type = MAV_PARAM_TYPE.MAV_PARAM_TYPE_REAL32;
+        set_param.param_type = type;
         set_param.param_value = value;
 
         mav_send_pack(set_param.pack());
     }
-    public void mav_param_request_read (byte[] id, short index){
+
+    public static void mav_param_request_read(byte[] id, short index) {
         msg_param_request_read request_read = new msg_param_request_read(headerPacket);
         request_read.target_system = 1;
         request_read.target_component = 1;
@@ -678,51 +600,22 @@ public class MainActivity extends AppCompatActivity {
 
         mav_send_pack(request_read.pack());
     }
-    public void mav_param_request_list (){
+
+    public static void mav_param_request_list() {
         msg_param_request_list request_list = new msg_param_request_list(headerPacket);
         request_list.target_system = 1;
         request_list.target_component = 1;
 
+        ParamList.clearParam();
         mav_send_pack(request_list.pack());
     }
 
-//    public void mav_reqread_param (int n){
-//        msg_param_request_read req_param = new msg_param_request_read(headerPacket);
-//        mavlink_param_union_t param;
-//        int32_t integer = 20000;
-//        param.param_int32 = integer;
-//        param.type = MAV_PARAM_TYPE_INT32;
-//
-//
-//        Integer  tYaw = (int)(1500+joystick_L.xPosition()*500/50);//*PITCH_RANGEVALUE/50);
-//        Integer  tThrottle = (int)(1500+joystick_L.yPosition()*500/50);//*PITCH_RANGEVALUE/50);
-//        Integer  tRoll = (int)(1500+joystick_R.xPosition()*500/50);//*PITCH_RANGEVALUE/50);
-//        Integer tPitch = (int)(1500+joystick_R.yPosition()*500/50);//*PITCH_RANGEVALUE/50);
-//        Integer tMode = 1;
-//        //Log.d(TAG, "Send real x= " + tPitch + " y = " + tRoll);
-//        Log.d(TAG, "Send real x= " + tPitch + " y = " + tRoll + " tThrottle = " + tThrottle + " tYaw = " + tYaw);
-//
-//        msg_rc.chan1_raw = tThrottle.shortValue();
-//        msg_rc.chan2_raw = tYaw.shortValue();
-//        msg_rc.chan3_raw = tPitch.shortValue();
-//        msg_rc.chan4_raw = tRoll.shortValue();
-//        msg_rc.chan5_raw = tMode.shortValue();
-//
-//        MAVLinkPacket packet_RC = msg_rc.pack();
-//        packet_RC.seq = mavlink_cnt++;
-//        byte[] buffer = packet_RC.encodePacket();
-//        mUdpClient.sendMessageByte(buffer);
-//    }
 
-
-    public void init_mav () {
+    public void init_mav() {
         //param
 
         //msg_param_request_read
     }
-
-
-
 
 
     class MyTimerTask extends TimerTask {                                                           //MyTimerTask
@@ -736,12 +629,12 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
 
 
-                    if (mUdpClient != null){
+                    if (mUdpClient != null) {
                         msg_rc_channels_override msg_rc = new msg_rc_channels_override(headerPacket);
-                        Integer  tYaw = (int)(1500+joystick_L.xPosition()*500/50);//*PITCH_RANGEVALUE/50);
-                        Integer  tThrottle = (int)(1500+joystick_L.yPosition()*500/50);//*PITCH_RANGEVALUE/50);
-                        Integer  tRoll = (int)(1500+joystick_R.xPosition()*500/50);//*PITCH_RANGEVALUE/50);
-                        Integer tPitch = (int)(1500+joystick_R.yPosition()*500/50);//*PITCH_RANGEVALUE/50);
+                        Integer tYaw = (int) (1500 + joystick_L.xPosition() * 500 / 50);//*PITCH_RANGEVALUE/50);
+                        Integer tThrottle = (int) (1500 + joystick_L.yPosition() * 500 / 50);//*PITCH_RANGEVALUE/50);
+                        Integer tRoll = (int) (1500 + joystick_R.xPosition() * 500 / 50);//*PITCH_RANGEVALUE/50);
+                        Integer tPitch = (int) (1500 + joystick_R.yPosition() * 500 / 50);//*PITCH_RANGEVALUE/50);
                         Integer tMode = 1;
                         //Log.d(TAG, "Send real x= " + tPitch + " y = " + tRoll);
                         //Log.d(TAG, "Send real x= " + tPitch + " y = " + tRoll + " tThrottle = " + tThrottle + " tYaw = " + tYaw);
@@ -755,29 +648,18 @@ public class MainActivity extends AppCompatActivity {
                         MAVLinkPacket packet_RC = msg_rc.pack();
                         packet_RC.seq = mavlink_cnt++;
                         byte[] buffer = packet_RC.encodePacket();
-                        //mUdpClient.sendMessageByte(buffer);
+                        mUdpClient.sendMessageByte(buffer);
                     }
 
-
-//                    if (mTcpClient != null) {
-//                        char[] cmd = new char[60];
-//                        PrepareBytesToSend(cmd);
-//                        mTcpClient.sendBytes(cmd, 34);
-//                    }
-
-
-                    if (mTcpClient.Status >0) tv4.setText("Status: Connected");
-                    //else if (fragment.connected == TerminalFragment.Connected.True) tv4.setText("Status: VCP Connected");
+                    if (mTcpClient.Status > 0) tv4.setText("Status: Connected");
+                        //else if (fragment.connected == TerminalFragment.Connected.True) tv4.setText("Status: VCP Connected");
                     else tv4.setText("Status: disConnected");
-
 
 
                 }
             });
         }
     }
-
-
 
 
     @Override
@@ -791,10 +673,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "...In onPause()...");
 
     }
-
-
-
-
 
 
 }

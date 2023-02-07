@@ -26,8 +26,8 @@ public class Joystick extends View {
 
     public Joystick(Context context, AttributeSet attrs) {
         super(context, attrs);
-        x_Width = 400;
-        y_Height = 400;
+        x_Width = 300;
+        y_Height = 300;
         n_x = x_Width/2;
         n_y = y_Height/2;
         x_ret = true;
@@ -99,14 +99,14 @@ public class Joystick extends View {
 
         Paint xferPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         xferPaint.setColor(Color.CYAN);
-        canvas.drawRoundRect(new RectF(0,0,x_Width,y_Height), 100.0f, 100.0f, xferPaint);
+        canvas.drawRoundRect(new RectF(0,0,x_Width,y_Height), 50.0f, 50.0f, xferPaint);
 
 
         Paint paint = new Paint();
 
         paint.setColor(Color.rgb(127, 0, 0));
         canvas.drawRect(0, n_y - 5, x_Width, n_y + 5, paint);
-        ;
+
         canvas.drawRect(n_x - 5, 0, n_x + 5, y_Height, paint);
 //			  canvas.drawLine(0, y_Height * 2/3, x_Width, y_Height * 2/3, paint);
 
