@@ -31,7 +31,8 @@ public class UdpClient {
 
     public static final String TAG = "test";//TcpClient.class.getSimpleName();
     //public static final String SERVER_IP = "192.168.100.1"; //server IP address
-    public static final String SERVER_IP = "192.168.12.221"; //server IP address
+    //public static final String SERVER_IP = "192.168.12.221"; //server IP address
+    public static final String SERVER_IP = "192.168.12.219"; //server IP address
     //public static final int SERVER_PORT = 2000;
     public static final int SERVER_PORT_RX = 14550;
     public static final int SERVER_PORT_TX = 14551;
@@ -56,18 +57,18 @@ public class UdpClient {
     /**
      * Constructor of the class. OnMessagedReceived listens for the messages received from server
      */
-    public UdpClient(OnMessageReceived listener) {
+    public UdpClient(OnMessageReceived listener, String ip_address, int port) {
         buffer = new byte[1600];
         mMessageListener = listener;
 
         try {
-            udpSocket = new DatagramSocket(SERVER_PORT_RX);
+            udpSocket = new DatagramSocket(port);   //SERVER_PORT_RX
             //udpSocket.setSoTimeout(timeoutMs);
         } catch (SocketException e) {
             e.printStackTrace();
         }
         try {
-            serverAddr = InetAddress.getByName(SERVER_IP);
+            serverAddr = InetAddress.getByName(ip_address); //SERVER_IP
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }

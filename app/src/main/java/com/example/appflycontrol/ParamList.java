@@ -72,7 +72,7 @@ public class ParamList {
     {
         return params[n-1].t_type;
     }
-    public static void deleteParam(int n){ params[n-1].status = 0;}
+    public static void deleteParam(int n){ params[n-1].status = 0; status = 0;}
     public static int getUpdateCnt(){ return updaterCnt;}
     public static int need2getParam()
     {

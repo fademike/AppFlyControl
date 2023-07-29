@@ -1,5 +1,7 @@
 package com.example.appflycontrol;
 
+import static com.MAVLink.enums.MAV_STATE.MAV_STATE_ACTIVE;
+
 import com.MAVLink.MAVLinkPacket;
 import com.MAVLink.Messages.Description;
 import com.MAVLink.Messages.MAVLinkMessage;
@@ -8,6 +10,7 @@ import com.MAVLink.Parser;
 import com.MAVLink.common.msg_attitude;
 import com.MAVLink.common.msg_attitude_target;
 import com.MAVLink.common.msg_battery_status;
+import com.MAVLink.common.msg_command_ack;
 import com.MAVLink.common.msg_command_long;
 import com.MAVLink.common.msg_param_request_list;
 import com.MAVLink.common.msg_param_request_read;
@@ -115,14 +118,14 @@ public class MainActivity extends AppCompatActivity {
 
     static TcpClient mTcpClient;
     static UdpClient mUdpClient;
-    static TextView tv1, tv2, tv3, tv4, tv5;
-    static Button btn3, btnSettings, btnLight, btnApplyDev, ConnectBT, btnExit, btnPowerOff, btnTemp;
+    static TextView tv_position, tv_status, tv_voltage, tv_temperature, tv_press;
+    static Button btnExit, btnState, btnTemp, btnSettings;
 
-    static Switch sw1, sw2, switchTRIM;
-
-    static SeekBar sb_yaw;
 
     public int time_t = 0;
+
+    public static String IP_Adress = "127.0.0.1";
+    public static int IP_Port = 14551;
 
     public static int typeManage = 0;
     public static int StabRoll = 0;
@@ -155,8 +158,6 @@ public class MainActivity extends AppCompatActivity {
     public static int SERVO1_TYPEMOVE = 0;
     public static int SERVO2_TYPEMOVE = 0;
 
-    static TextView tvVoltage, tvTemp, tvPress;
-
     static Joystick joystick_L, joystick_R;
 
     static ImageView iw1, iw2, iw3, iw4, iw5;
@@ -167,27 +168,15 @@ public class MainActivity extends AppCompatActivity {
     private MyTimerTask mMyTimerTask;
 
 
-//    static float param[];
-
-//class newData{
-//    boolean update;
-//    float pitch;
-//    float roll;
-//    float yaw;
-//    float throttle;
-//
-//
-//};
-
-//    static newData rxNewData;
-
     char[][] rxMSG;
 
     int sb_yaw_pos = 0;
+    static int arm_disarm = 1;
 
     static MAVLinkPacket headerPacket;
     static byte mavlink_cnt;
-
+    static int timer_rx_HB_system = 0;
+    static int timer_rx_HB_drone = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -196,25 +185,25 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         getSupportActionBar().hide();
 
+        mSettings = getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        IP_Adress = mSettings.getString("IP_Adress", "127.0.0.1");
+        IP_Port = mSettings.getInt("IP_Port", 1234);
+
         headerPacket = new MAVLinkPacket(0, true);
         headerPacket.sysid = 1;
         headerPacket.compid = 0;
 
-//        param = new float[255];
-
         mParams = new ParamList();
 
-        //rxNewData = new newData();
 
         new ConnectUdpTask().execute("");
 
-        mSettings = getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
         if (mTimer != null) mTimer.cancel();
         // re-schedule timer here otherwise, IllegalStateException of "TimerTask is scheduled already"  will be thrown
         mTimer = new Timer();
         mMyTimerTask = new MyTimerTask();
-        mTimer.schedule(mMyTimerTask, 1000, 1000);// delay 1000ms, repeat in 5000ms
+        mTimer.schedule(mMyTimerTask, 1000, 100);// delay 1000ms, repeat in 5000ms
 
         joystick_L = (Joystick) findViewById(R.id.joystick_L);
         joystick_R = (Joystick) findViewById(R.id.joystick_R);
@@ -225,55 +214,55 @@ public class MainActivity extends AppCompatActivity {
         joystick_L.y = joystick_L.y_Height - joystick_L.sqrSize;
 
 
-        btn3 = (Button) findViewById(R.id.btn3);
-        btn3.setText("Reset");
-        btnSettings = (Button) findViewById(R.id.btnSettings);
-        btnLight = (Button) findViewById(R.id.btnLight);
-        btnApplyDev = (Button) findViewById(R.id.btnApplyDev);
-        ConnectBT = (Button) findViewById(R.id.ConnectBT);
         btnExit = (Button) findViewById(R.id.btnExit);
-        btnPowerOff = (Button) findViewById(R.id.btnPowerOff);
-        tv1 = (TextView) findViewById(R.id.tv1);
-        tv1.setText("...");
-        tv2 = (TextView) findViewById(R.id.tv2);
-        tv2.setText("...");
-        tv3 = (TextView) findViewById(R.id.tv3);
-        tv3.setText("...");
-        tv4 = (TextView) findViewById(R.id.textView4);
-        tv4.setText("Status: Created");
-        tv5 = (TextView) findViewById(R.id.tv5);
-        tv5.setText("x=0,y=0,z=0");
-        spTypeDevice = (Spinner) findViewById(R.id.spTypeDevice);
-        spTypeConnection = (Spinner) findViewById(R.id.spTypeConnection);
-
-        tvVoltage = (TextView) findViewById(R.id.textVoltage);
-        tvTemp = (TextView) findViewById(R.id.textTemp);
-        tvPress = (TextView) findViewById(R.id.textPress);
-
-        tvVoltage.setText("tvVoltage");
-        tvTemp.setText("tvTemp");
-        tvPress.setText("tvPress");
-
-
+        btnState = (Button) findViewById(R.id.btnState);
         btnTemp = (Button) findViewById(R.id.btnTemp);
+        btnSettings = (Button) findViewById(R.id.btnSettings);
+
+        tv_position = (TextView) findViewById(R.id.tv_position);
+        tv_status = (TextView) findViewById(R.id.tv_status);
+        tv_voltage = (TextView) findViewById(R.id.tv_voltage);
+        tv_temperature = (TextView) findViewById(R.id.tv_temperature);
+        tv_press = (TextView) findViewById(R.id.tv_press);
+
+        tv_status.setText("Status: Created");
+        tv_position.setText("x=0,y=0,z=0");
+
+        btnState.setOnClickListener(new View.OnClickListener() {    //btn STATE
+            @Override
+            public void onClick(View v) {
+
+
+
+                msg_command_long cmd_long = new msg_command_long(headerPacket);
+                cmd_long.command = MAV_CMD.MAV_CMD_COMPONENT_ARM_DISARM;
+
+                if (arm_disarm>1) arm_disarm=0;
+                Log.d(TAG, "arm: " + arm_disarm +".");
+                cmd_long.param1 = arm_disarm;
+                mav_send_pack(cmd_long.pack());
+
+
+
+            }
+        });
+
         btnTemp.setOnClickListener(new View.OnClickListener() {    //Temp
             @Override
             public void onClick(View v) {
 
-                mav_param_request_list();
+
+                msg_command_long cmd_long = new msg_command_long(headerPacket);
+                cmd_long.command = MAV_CMD.MAV_CMD_COMPONENT_ARM_DISARM;
+                cmd_long.param1 = 0;
+                mav_send_pack(cmd_long.pack());
+
+                //mav_start_calibrate(true, false);
+                //mav_param_request_list();
 
             }
         });
 
-        btn3.setOnClickListener(new View.OnClickListener() {    //Send
-            @Override
-            public void onClick(View v) {
-                //tv1.setText("Send...");
-                Log.d("test", "Reset Joy...");
-                //sends the message to the server
-
-            }
-        });
         btnSettings.setOnClickListener(new View.OnClickListener() {    //Settings
             @Override
             public void onClick(View v) {
@@ -282,28 +271,9 @@ public class MainActivity extends AppCompatActivity {
                 //sends the message to the server
 
                 //Intent intent = new Intent(MainActivity.this, SecondActivity.class);
-                Intent intent = new Intent(MainActivity.this, params_activity.class);//MenuActivity.class);
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);//params_activity.class);//MenuActivity.class);
                 //Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
-            }
-        });
-
-
-        btnLight.setOnClickListener(new View.OnClickListener() {    //Send
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        btnApplyDev.setOnClickListener(new View.OnClickListener() {    //Send
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        ConnectBT.setOnClickListener(new View.OnClickListener() {    //Send
-            @Override
-            public void onClick(View v) {
             }
         });
 
@@ -311,26 +281,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 System.exit(0);
-            }
-        });
-
-        btnPowerOff.setOnClickListener(new View.OnClickListener() {    //PowerOff
-            @Override
-            public void onClick(View v) {
-
-
-                if (mUdpClient != null) {
-                    msg_command_long cmd_long = new msg_command_long(headerPacket);
-
-                    cmd_long.command = MAV_CMD.MAV_CMD_COMPONENT_ARM_DISARM;
-                    cmd_long.param1 = 1;
-
-                    MAVLinkPacket packet_RC = cmd_long.pack();
-                    packet_RC.seq = mavlink_cnt++;
-                    byte[] buffer = packet_RC.encodePacket();
-                    mUdpClient.sendMessageByte(buffer);
-                }
-
             }
         });
 
@@ -343,7 +293,6 @@ public class MainActivity extends AppCompatActivity {
         iw2.setTop(-1040);
 
         iw3.setRotation(0);
-
 
         typeManage = mSettings.getInt("typeManage", 0);
         StabRoll = mSettings.getInt("StabRoll", 0);
@@ -377,39 +326,29 @@ public class MainActivity extends AppCompatActivity {
         SERVO2_TYPEMOVE = mSettings.getInt("SERVO2_TYPEMOVE", 0);
 
 
-//        btAdapter = BluetoothAdapter.getDefaultAdapter();
-//        checkBTState();
 
-        sw1 = (Switch) findViewById(R.id.switch1);
-        sw2 = (Switch) findViewById(R.id.switch2);
-        //sw1.setBackgroundColor(0x5500FF00);
-        //sw1.setBackgroundColor(0x55FFFF00);
-
-        switchTRIM = (Switch) findViewById(R.id.switchTRIM);
-
-        etMulti = (TextView) findViewById(R.id.etmulti);
 
 
         rxMSG = new char[5][200];
 
-        sb_yaw = (SeekBar) findViewById(R.id.sb_yaw);
-        sb_yaw.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                sb_yaw_pos = 100 - progress;
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                sb_yaw_pos = 0;
-                seekBar.setProgress(100);
-            }
-        });
+//        sb_yaw = (SeekBar) findViewById(R.id.sb_yaw);
+//        sb_yaw.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                sb_yaw_pos = 100 - progress;
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//                sb_yaw_pos = 0;
+//                seekBar.setProgress(100);
+//            }
+//        });
 
 
     }
@@ -435,7 +374,8 @@ public class MainActivity extends AppCompatActivity {
                     publishProgress(message);
                     //Log.d(TAG, "RxData!");
                 }
-            });
+            }, IP_Adress, IP_Port);
+            //}, IP_Adress, IP_Port);
             mUdpClient.run();
 
             return null;
@@ -461,14 +401,38 @@ public class MainActivity extends AppCompatActivity {
                     switch (packet.msgid) {
                         case msg_heartbeat.MAVLINK_MSG_ID_HEARTBEAT:
                             msg_heartbeat p_hb = new msg_heartbeat(packet);
+                            //Log.d(TAG, "rx HB");
+                            if (p_hb.sysid == 100) timer_rx_HB_system = 50;
+                            else {
+                                timer_rx_HB_drone = 50;
+                                int hb_status = p_hb.system_status;
+                                if (hb_status == MAV_STATE_ACTIVE) {
+                                    btnState.setText("ARMed");
+                                    arm_disarm = 0;
+                                } else {
+                                    btnState.setText("Relax");
+                                    arm_disarm = 1;
+                                }
+                            }
                             //Log.d(TAG, "rx hb id  " + packet.msgid);
+                            break;
+                        case msg_command_ack.MAVLINK_MSG_ID_COMMAND_ACK:
+                            msg_command_ack cmd_ack = new msg_command_ack(packet);
+                            int ack_result = cmd_ack.result;
+                            int ack_progress = cmd_ack.progress;
+                            Log.d(TAG, "Ack ( res:" + ack_result + " progress: " + ack_progress + "%)");
+                            if (ack_result == 0) {
+                                if (arm_disarm == 1){btnState.setText("ARMed."); arm_disarm = 0;}
+                                else {btnState.setText("Relax."); arm_disarm = 1;}
+                                //arm_disarm++;
+                            }
                             break;
                         case msg_sys_status.MAVLINK_MSG_ID_SYS_STATUS:
                             msg_sys_status p_sys_status = new msg_sys_status(packet);
                             int st_bat = p_sys_status.battery_remaining;
                             int st_voltage = p_sys_status.voltage_battery;
                             //Log.d(TAG, "bat remaining  " + st_bat);
-                            tvVoltage.setText("V= " + st_voltage + " mV (" + st_bat + "%)");
+                            tv_voltage.setText("V= " + st_voltage + " mV (" + st_bat + "%)");
                             //Log.d(TAG, "rx sys_status id  " + p_sys_status.msgid);
                             break;
                         case msg_battery_status.MAVLINK_MSG_ID_BATTERY_STATUS:
@@ -476,7 +440,7 @@ public class MainActivity extends AppCompatActivity {
                             //Log.d(TAG, "rx bat  " + rx_pack.battery_remaining);
                             int percent = rx_pack.battery_remaining;
                             int voltage = rx_pack.voltages[0];
-                            tvVoltage.setText("V= " + voltage + " mV (" + percent + "%)");
+                            tv_voltage.setText("V= " + voltage + " mV (" + percent + "%)");
                             break;
                         case msg_param_value.MAVLINK_MSG_ID_PARAM_VALUE:
                             msg_param_value rx_param_value = new msg_param_value(packet);
@@ -505,7 +469,7 @@ public class MainActivity extends AppCompatActivity {
                             roll = Math.round(roll*10)/10;
                             yaw = Math.round(yaw*10)/10;
 
-                            tv5.setText("x=" + pitch + ",y=" + roll + ",z=" + yaw + " ");
+                            tv_position.setText("x=" + pitch + ",y=" + roll + ",z=" + yaw + " ");
 
                             Integer imgPitch = Math.round(pitch);
 
@@ -564,7 +528,7 @@ public class MainActivity extends AppCompatActivity {
         pack.seq = mavlink_cnt++;
         //pack.isMavlink2 = false;
         byte[] buffer = pack.encodePacket();
-        Log.d(TAG, "len len " + pack.len + " payload size " + pack.payload.size() + " send " + buffer.length);
+        //Log.d(TAG, "len len " + pack.len + " payload size " + pack.payload.size() + " send " + buffer.length);
         mUdpClient.sendMessageByte(buffer);
     }
 
@@ -578,6 +542,32 @@ public class MainActivity extends AppCompatActivity {
         init_HB.mavlink_version = 2;
 
         mav_send_pack(init_HB.pack());
+    }
+
+    public void mav_send_rc_channels(){
+ //       if (mUdpClient != null) {
+            msg_rc_channels_override msg_rc = new msg_rc_channels_override(headerPacket);
+            Integer tYaw = (int) (1500 + joystick_L.xPosition() * 500 / 50);//*PITCH_RANGEVALUE/50);
+            Integer tThrottle = (int) (1500 + joystick_L.yPosition() * 500 / 50);//*PITCH_RANGEVALUE/50);
+            Integer tRoll = (int) (1500 + joystick_R.xPosition() * 500 / 50);//*PITCH_RANGEVALUE/50);
+            Integer tPitch = (int) (1500 + joystick_R.yPosition() * 500 / 50);//*PITCH_RANGEVALUE/50);
+            Integer tMode = 1;
+            //Log.d(TAG, "Send real x= " + tPitch + " y = " + tRoll);
+            //Log.d(TAG, "Send real x= " + tPitch + " y = " + tRoll + " tThrottle = " + tThrottle + " tYaw = " + tYaw);
+
+            msg_rc.chan1_raw = tThrottle.shortValue();
+            msg_rc.chan2_raw = tYaw.shortValue();
+            msg_rc.chan3_raw = tPitch.shortValue();
+            msg_rc.chan4_raw = tRoll.shortValue();
+            msg_rc.chan5_raw = tMode.shortValue();
+
+//            MAVLinkPacket packet_RC = msg_rc.pack();
+//            packet_RC.seq = mavlink_cnt++;
+//            byte[] buffer = packet_RC.encodePacket();
+//            mUdpClient.sendMessageByte(buffer);
+
+            mav_send_pack(msg_rc.pack());
+ //       }
     }
 
     public int init_status = 0;
@@ -610,51 +600,50 @@ public class MainActivity extends AppCompatActivity {
         mav_send_pack(request_list.pack());
     }
 
+    public static int mav_calibrate_rx_responce = 0;
+    public static void mav_start_calibrate(boolean gyro, boolean acc) {
+
+        msg_command_long cmd_long = new msg_command_long(headerPacket);
+
+//  1      | 1: gyro calibration, 3: gyro temperature calibration
+//  2      | 1: magnetometer calibration
+//  3      | 1: ground pressure calibration
+//  4      | 1: radio RC calibration, 2: RC trim calibration
+//  5      | 1: accelerometer calibration, 2: board level calibration, 3: accelerometer temperature calibration, 4: simple accelerometer calibration
+//  6      | 1: APM: compass/motor interference calibration (PX4: airspeed calibration, deprecated), 2: airspeed calibration
+//  7      | 1: ESC calibration, 3: barometer temperature calibration|
+
+        cmd_long.command = MAV_CMD.MAV_CMD_PREFLIGHT_CALIBRATION;
+        if (gyro) cmd_long.param1 = 1;    //gyro calibration
+        if (acc) cmd_long.param5 = 1;    //accelerometer calibration
+
+        mav_send_pack(cmd_long.pack());
+        mav_calibrate_rx_responce = 0;
+    }
 
     public void init_mav() {
         //param
-
         //msg_param_request_read
     }
 
-
+static int timer_send_HB = 0;
     class MyTimerTask extends TimerTask {                                                           //MyTimerTask
-
         @Override
         public void run() {
-
             runOnUiThread(new Runnable() {
-
                 @Override
                 public void run() {
 
+                    mav_send_rc_channels();
+                    if (++timer_send_HB>=10){mav_send_HB();timer_send_HB=0;}
 
-                    if (mUdpClient != null) {
-                        msg_rc_channels_override msg_rc = new msg_rc_channels_override(headerPacket);
-                        Integer tYaw = (int) (1500 + joystick_L.xPosition() * 500 / 50);//*PITCH_RANGEVALUE/50);
-                        Integer tThrottle = (int) (1500 + joystick_L.yPosition() * 500 / 50);//*PITCH_RANGEVALUE/50);
-                        Integer tRoll = (int) (1500 + joystick_R.xPosition() * 500 / 50);//*PITCH_RANGEVALUE/50);
-                        Integer tPitch = (int) (1500 + joystick_R.yPosition() * 500 / 50);//*PITCH_RANGEVALUE/50);
-                        Integer tMode = 1;
-                        //Log.d(TAG, "Send real x= " + tPitch + " y = " + tRoll);
-                        //Log.d(TAG, "Send real x= " + tPitch + " y = " + tRoll + " tThrottle = " + tThrottle + " tYaw = " + tYaw);
+//                    if (mTcpClient.Status > 0) tv_status.setText("Status: Connected");
+//                        //else if (fragment.connected == TerminalFragment.Connected.True) tv4.setText("Status: VCP Connected");
+//                    else tv_status.setText("Status: disConnected");
 
-                        msg_rc.chan1_raw = tThrottle.shortValue();
-                        msg_rc.chan2_raw = tYaw.shortValue();
-                        msg_rc.chan3_raw = tPitch.shortValue();
-                        msg_rc.chan4_raw = tRoll.shortValue();
-                        msg_rc.chan5_raw = tMode.shortValue();
-
-                        MAVLinkPacket packet_RC = msg_rc.pack();
-                        packet_RC.seq = mavlink_cnt++;
-                        byte[] buffer = packet_RC.encodePacket();
-                        mUdpClient.sendMessageByte(buffer);
-                    }
-
-                    if (mTcpClient.Status > 0) tv4.setText("Status: Connected");
-                        //else if (fragment.connected == TerminalFragment.Connected.True) tv4.setText("Status: VCP Connected");
-                    else tv4.setText("Status: disConnected");
-
+                    if (timer_rx_HB_drone>0){timer_rx_HB_drone--; timer_rx_HB_system--; tv_status.setText("Status: Connected");}
+                    else if (timer_rx_HB_system>0){timer_rx_HB_system--; tv_status.setText("Status: Connecting...");}
+                    else {tv_status.setText("Status: DisConnected");}
 
                 }
             });
