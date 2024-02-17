@@ -17,6 +17,8 @@ public class SettingsActivity extends Activity {
     Button btn_setip;
     Button btn_params;
     Button btn_calib_acc;
+    Button btn_calib_gyro;
+    Button btn_reboot;
     Button btn_back;
 
     @Override
@@ -65,6 +67,20 @@ public class SettingsActivity extends Activity {
             @Override
             public void onClick(View v) {
                 MainActivity.mav_start_calibrate(false, true);
+            }
+        });
+        btn_calib_gyro = (Button) findViewById(R.id.btn_calib_gyro);
+        btn_calib_gyro.setOnClickListener(new View.OnClickListener() {    //Start calibrate acc
+            @Override
+            public void onClick(View v) {
+                MainActivity.mav_start_calibrate(true, false);
+            }
+        });
+        btn_reboot = (Button) findViewById(R.id.btn_reboot);
+        btn_reboot.setOnClickListener(new View.OnClickListener() {    //Start calibrate acc
+            @Override
+            public void onClick(View v) {
+                MainActivity.mav_start_reboot();
             }
         });
 

@@ -29,6 +29,7 @@ public class ParamList {
     {
         int i;
         if (index < 1) return;
+        if (index > all) return;
         if (cntParam != all) {
             status = 0;
             cntParam = all;

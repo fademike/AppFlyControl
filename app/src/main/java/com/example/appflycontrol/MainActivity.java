@@ -85,7 +85,7 @@ import android.bluetooth.BluetoothSocket;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String TAG = "test";//TcpClient.class.getSimpleName();
+    public static final String TAG = "fly";//TcpClient.class.getSimpleName();
 
     public enum TypeConnection {VCP, WIFI, BT}
 
@@ -121,42 +121,8 @@ public class MainActivity extends AppCompatActivity {
     static TextView tv_position, tv_status, tv_voltage, tv_temperature, tv_press;
     static Button btnExit, btnState, btnTemp, btnSettings;
 
-
-    public int time_t = 0;
-
     public static String IP_Adress = "127.0.0.1";
     public static int IP_Port = 14551;
-
-    public static int typeManage = 0;
-    public static int StabRoll = 0;
-    public static int StabPitch = 0;
-    public static int StabYaw = 0;
-    public static int StabAngelPitch = 0;
-    public static int StabAngelRoll = 0;
-    public static int StabKoeffManage1 = 127;
-    public static int StabKoeffManage2 = 127;
-    public static int StabServo1 = 0;
-    public static int StabServo2 = 0;
-    public static int StabKoeffCh1 = 127;
-    public static int StabKoeffCh2 = 127;
-    public static int pos_rev = 0;
-    public static int pos_ang1 = 3;
-    public static int pos_ang2 = 19;
-    public static int StabServoMax1 = 127;
-    public static int StabServoMax2 = 127;
-    public static int CmdTimeout = 20;
-    public static int math_K_angle = 1;
-    public static int math_K_bias = 3;
-    public static int math_K_measure = 30;
-    public static int math_gyroRate = 131;
-    public static int manageExp = 50;
-
-    public static int ROLL_INVERSION = 0;
-    public static int ROLL_RANGEVALUE = 254;
-    public static int PITCH_INVERSION = 0;
-    public static int PITCH_RANGEVALUE = 254;
-    public static int SERVO1_TYPEMOVE = 0;
-    public static int SERVO2_TYPEMOVE = 0;
 
     static Joystick joystick_L, joystick_R;
 
@@ -170,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
 
     char[][] rxMSG;
 
-    int sb_yaw_pos = 0;
     static int arm_disarm = 1;
 
     static MAVLinkPacket headerPacket;
@@ -231,9 +196,6 @@ public class MainActivity extends AppCompatActivity {
         btnState.setOnClickListener(new View.OnClickListener() {    //btn STATE
             @Override
             public void onClick(View v) {
-
-
-
                 msg_command_long cmd_long = new msg_command_long(headerPacket);
                 cmd_long.command = MAV_CMD.MAV_CMD_COMPONENT_ARM_DISARM;
 
@@ -241,9 +203,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "arm: " + arm_disarm +".");
                 cmd_long.param1 = arm_disarm;
                 mav_send_pack(cmd_long.pack());
-
-
-
             }
         });
 
@@ -267,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //tv1.setText("Send...");
-                Log.d("test", "Go to Second Activity...");
+                Log.d("test", "Go to Settings Activity...");
                 //sends the message to the server
 
                 //Intent intent = new Intent(MainActivity.this, SecondActivity.class);
@@ -294,62 +253,8 @@ public class MainActivity extends AppCompatActivity {
 
         iw3.setRotation(0);
 
-        typeManage = mSettings.getInt("typeManage", 0);
-        StabRoll = mSettings.getInt("StabRoll", 0);
-        StabPitch = mSettings.getInt("StabPitch", 0);
-        StabYaw = mSettings.getInt("StabYaw", 0);
-        StabAngelPitch = mSettings.getInt("StabAngelPitch", 0);
-        StabAngelRoll = mSettings.getInt("StabAngelRoll", 0);
-        StabKoeffManage1 = mSettings.getInt("StabKoeffManage1", 127);
-        StabKoeffManage2 = mSettings.getInt("StabKoeffManage2", 127);
-        StabServo1 = mSettings.getInt("StabServo1", 0);
-        StabServo2 = mSettings.getInt("StabServo2", 0);
-        StabKoeffCh1 = mSettings.getInt("StabKoeffCh1", 127);
-        StabKoeffCh2 = mSettings.getInt("StabKoeffCh2", 127);
-        pos_rev = mSettings.getInt("pos_rev", 0);
-        pos_ang1 = mSettings.getInt("pos_ang1", 3);
-        pos_ang2 = mSettings.getInt("pos_ang2", 19);
-        StabServoMax1 = mSettings.getInt("StabServoMax1", 127);
-        StabServoMax2 = mSettings.getInt("StabServoMax2", 127);
-        CmdTimeout = mSettings.getInt("CmdTimeout", 20);
-        math_K_angle = mSettings.getInt("math_K_angle", 1);
-        math_K_bias = mSettings.getInt("math_K_bias", 3);
-        math_K_measure = mSettings.getInt("math_K_measure", 30);
-        math_gyroRate = mSettings.getInt("math_gyroRate", 131);
-        manageExp = mSettings.getInt("manageExp", 50);
-
-        ROLL_INVERSION = mSettings.getInt("ROLL_INVERSION", 0);
-        ROLL_RANGEVALUE = mSettings.getInt("ROLL_RANGEVALUE", 0);
-        PITCH_INVERSION = mSettings.getInt("PITCH_INVERSION", 0);
-        PITCH_RANGEVALUE = mSettings.getInt("PITCH_RANGEVALUE", 0);
-        SERVO1_TYPEMOVE = mSettings.getInt("SERVO1_TYPEMOVE", 0);
-        SERVO2_TYPEMOVE = mSettings.getInt("SERVO2_TYPEMOVE", 0);
-
-
-
-
 
         rxMSG = new char[5][200];
-
-//        sb_yaw = (SeekBar) findViewById(R.id.sb_yaw);
-//        sb_yaw.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                sb_yaw_pos = 100 - progress;
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//                sb_yaw_pos = 0;
-//                seekBar.setProgress(100);
-//            }
-//        });
-
 
     }
 
@@ -372,10 +277,8 @@ public class MainActivity extends AppCompatActivity {
                 public void messageReceived(String message) {
                     //this method calls the onProgressUpdate
                     publishProgress(message);
-                    //Log.d(TAG, "RxData!");
                 }
             }, IP_Adress, IP_Port);
-            //}, IP_Adress, IP_Port);
             mUdpClient.run();
 
             return null;
@@ -526,7 +429,6 @@ public class MainActivity extends AppCompatActivity {
 
     static public void mav_send_pack(MAVLinkPacket pack) {
         pack.seq = mavlink_cnt++;
-        //pack.isMavlink2 = false;
         byte[] buffer = pack.encodePacket();
         //Log.d(TAG, "len len " + pack.len + " payload size " + pack.payload.size() + " send " + buffer.length);
         mUdpClient.sendMessageByte(buffer);
@@ -545,6 +447,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void mav_send_rc_channels(){
+        if (arm_disarm == 1) return;
  //       if (mUdpClient != null) {
             msg_rc_channels_override msg_rc = new msg_rc_channels_override(headerPacket);
             Integer tYaw = (int) (1500 + joystick_L.xPosition() * 500 / 50);//*PITCH_RANGEVALUE/50);
@@ -560,11 +463,6 @@ public class MainActivity extends AppCompatActivity {
             msg_rc.chan3_raw = tPitch.shortValue();
             msg_rc.chan4_raw = tRoll.shortValue();
             msg_rc.chan5_raw = tMode.shortValue();
-
-//            MAVLinkPacket packet_RC = msg_rc.pack();
-//            packet_RC.seq = mavlink_cnt++;
-//            byte[] buffer = packet_RC.encodePacket();
-//            mUdpClient.sendMessageByte(buffer);
 
             mav_send_pack(msg_rc.pack());
  //       }
@@ -615,15 +513,25 @@ public class MainActivity extends AppCompatActivity {
 
         cmd_long.command = MAV_CMD.MAV_CMD_PREFLIGHT_CALIBRATION;
         if (gyro) cmd_long.param1 = 1;    //gyro calibration
+        else cmd_long.param1 = 0;
         if (acc) cmd_long.param5 = 1;    //accelerometer calibration
+        else cmd_long.param5 = 0;
 
         mav_send_pack(cmd_long.pack());
         mav_calibrate_rx_responce = 0;
     }
 
-    public void init_mav() {
-        //param
-        //msg_param_request_read
+    public static void mav_start_reboot() {
+
+        msg_command_long cmd_long = new msg_command_long(headerPacket);
+
+        cmd_long.command = MAV_CMD.MAV_CMD_PREFLIGHT_REBOOT_SHUTDOWN;
+        cmd_long.param1 = 1;    //reboot autopilot
+        cmd_long.param2 = 1;    //reboot onboard computer
+        cmd_long.param3 = 1;    //reboot component
+
+        mav_send_pack(cmd_long.pack());
+        mav_calibrate_rx_responce = 0;
     }
 
 static int timer_send_HB = 0;
@@ -637,10 +545,6 @@ static int timer_send_HB = 0;
                     mav_send_rc_channels();
                     if (++timer_send_HB>=10){mav_send_HB();timer_send_HB=0;}
 
-//                    if (mTcpClient.Status > 0) tv_status.setText("Status: Connected");
-//                        //else if (fragment.connected == TerminalFragment.Connected.True) tv4.setText("Status: VCP Connected");
-//                    else tv_status.setText("Status: disConnected");
-
                     if (timer_rx_HB_drone>0){timer_rx_HB_drone--; timer_rx_HB_system--; tv_status.setText("Status: Connected");}
                     else if (timer_rx_HB_system>0){timer_rx_HB_system--; tv_status.setText("Status: Connecting...");}
                     else {tv_status.setText("Status: DisConnected");}
@@ -649,7 +553,6 @@ static int timer_send_HB = 0;
             });
         }
     }
-
 
     @Override
     public void onResume() {

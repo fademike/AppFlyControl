@@ -117,6 +117,7 @@ public class params_activity  extends Activity {
                                             wantToSetParam.t_type = param.t_type;
                                             wantToSetParam.t_index = param.t_index;
 
+                                            Log.d(TAG, "set new: " + param.t_index + " value: " + wantToSetParam.t_value);
                                             MainActivity.mav_param_set(wantToSetParam.t_name, wantToSetParam.t_value, (short)wantToSetParam.t_type);
                                             MainActivity.mParams.deleteParam(wantToSetParam.t_index);
 //                                            MainActivity.mav_param_set(param_name, Float.valueOf(userInput.getText().toString()), (short) param.t_type);
@@ -159,7 +160,7 @@ public class params_activity  extends Activity {
             public void run() {
                 try {
                     while(true){
-                        TimeUnit.MILLISECONDS.sleep(100);
+                        TimeUnit.MILLISECONDS.sleep(500);
                         runOnUiThread(runn1);
                     }
 

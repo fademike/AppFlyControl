@@ -14,65 +14,9 @@
         tools:layout_editor_absoluteY="1dp">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-
-
-            <Spinner
-                android:id="@+id/spTypeConnection"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/typeConnection"/>
-
-
-            <Button
-                android:id="@+id/btn3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="RESET MOTOR" />
-
-            <Button
-                android:id="@+id/btnSettings"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Settings" />
-
-
-            <Spinner
-                android:id="@+id/spTypeDevice"
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                android:entries="@array/typeDevice"/>
-
-            <Button
-                android:id="@+id/btnApplyDev"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Apply Dev" />
-
-            <Button
-                android:id="@+id/btnLight"
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                android:text="Light" />
-
-            <Button
-                android:id="@+id/ConnectBT"
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                android:text="CntBT" />
-
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-
 
             <Button
                 android:id="@+id/btnExit"
@@ -81,28 +25,10 @@
                 android:text="Exit" />
 
             <Button
-                android:id="@+id/btnPowerOff"
+                android:id="@+id/btnState"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="PowerOff" />
-
-            <Switch
-                android:id="@+id/switch1"
-                android:layout_width="120dip"
-                android:layout_height="wrap_content"
-                android:text="Calibrate"
-                android:textColorLink="#AAF055" />
-            <Switch
-                android:id="@+id/switchTRIM"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Trim"/>
-
-            <Switch
-                android:id="@+id/switch2"
-                android:layout_width="120dip"
-                android:layout_height="wrap_content"
-                android:text="MotorSRC" />
+                android:text="STATE" />
 
             <Button
                 android:id="@+id/btnTemp"
@@ -110,120 +36,61 @@
                 android:layout_height="wrap_content"
                 android:text="Temp" />
 
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
 
-            <RelativeLayout
-                android:id="@+id/fragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+            <Button
+                android:id="@+id/btnSettings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Settings" />
+
+
 
         </LinearLayout>
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-    <LinearLayout
-        android:layout_width="400dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
-
-        <TextView
-            android:id="@+id/tv2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
-
-        <TextView
-            android:id="@+id/tv3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
-
-        <TextView
-            android:id="@+id/tv5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
-
-
-    </LinearLayout>
 
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-
-            <TextView
-                android:id="@+id/textVoltage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-            <TextView
-                android:id="@+id/textTemp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-            <TextView
-                android:id="@+id/textPress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-
-        </LinearLayout>
-
-
-        <SeekBar
-            android:id="@+id/sb_yaw"
-            android:max="200"
-            android:progressTint="#00000000"
-            android:progress="100"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-
-
-    </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="400dp"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-
             <TextView
-                android:id="@+id/etmulti"
+                android:id="@+id/tv_position"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="" />
+                android:text="Position" />
+            <TextView
+                android:id="@+id/tv_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status" />
+            <TextView
+                android:id="@+id/tv_voltage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Voltage..." />
+            <TextView
+                android:id="@+id/tv_temperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:text="Temperature.." />
+            <TextView
+                android:id="@+id/tv_press"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:text="Press.." />
+
         </LinearLayout>
-    </LinearLayout>
 
 
         <LinearLayout

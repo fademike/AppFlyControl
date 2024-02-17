@@ -33,9 +33,9 @@
             android:label="Params"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".SecondActivity"
+            android:name=".SettingsActivity"
             android:keepScreenOn="true"
-            android:label="Second"
+            android:label="Settings"
             android:screenOrientation="landscape" />
     </application>
 
