@@ -86,6 +86,14 @@
             android:layout_weight="1"
             android:text="Reboot" />
 
+        <Switch
+            android:id="@+id/sw_viewlog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="View logs" />
+
+
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

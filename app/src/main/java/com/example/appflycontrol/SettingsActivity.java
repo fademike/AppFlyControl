@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Switch;
 
 public class SettingsActivity extends Activity {
 
@@ -20,6 +21,7 @@ public class SettingsActivity extends Activity {
     Button btn_calib_gyro;
     Button btn_reboot;
     Button btn_back;
+    Switch sw_viewlog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,11 +35,20 @@ public class SettingsActivity extends Activity {
         edit_ipport = (EditText) findViewById(R.id.et_ipport);
         edit_ipport.setText("" + MainActivity.IP_Port);
 
+        sw_viewlog = (Switch) findViewById(R.id.sw_viewlog);
+        sw_viewlog.setChecked(MainActivity.View_log);
 
         btn_back = (Button) findViewById(R.id.btn_back);
         btn_back.setOnClickListener(new View.OnClickListener() {    //Send
             @Override
             public void onClick(View v) {
+
+                boolean sw_state = sw_viewlog.isChecked();
+
+                if (MainActivity.View_log != sw_state) {
+                    MainActivity.View_log = sw_state;
+                    MainActivity.mSettings.edit().putBoolean("View_log", sw_state).commit();
+                }
                 onBackPressed();
             }
         });
