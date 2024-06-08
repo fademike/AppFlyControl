@@ -8,6 +8,7 @@ import com.MAVLink.Messages.MAVLinkMessage;
 import com.MAVLink.Messages.Units;
 import com.MAVLink.Parser;
 import com.MAVLink.common.msg_attitude;
+import com.MAVLink.common.msg_attitude_quaternion;
 import com.MAVLink.common.msg_attitude_target;
 import com.MAVLink.common.msg_battery_status;
 import com.MAVLink.common.msg_command_ack;
@@ -21,6 +22,7 @@ import com.MAVLink.common.msg_sys_status;
 import com.MAVLink.common.msg_system_time;
 import com.MAVLink.common.msg_statustext;
 import com.MAVLink.enums.MAV_CMD;
+import com.MAVLink.enums.MAV_COMPONENT;
 import com.MAVLink.enums.MAV_PARAM_TYPE;
 import com.MAVLink.minimal.msg_heartbeat;
 import com.driver.UsbSerialDriver;
@@ -89,6 +91,9 @@ import java.util.concurrent.TimeUnit;
 import android.widget.ArrayAdapter;
 
 import android.bluetooth.BluetoothSocket;
+import static java.lang.Math.PI;
+import static java.lang.Math.atan2;
+import static java.lang.Math.asin;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -400,8 +405,8 @@ public class MainActivity extends AppCompatActivity {
                 case msg_heartbeat.MAVLINK_MSG_ID_HEARTBEAT:
                     msg_heartbeat p_hb = new msg_heartbeat(packet);
                     //Log.d(TAG, "rx HB");
-                    if (p_hb.sysid == 100) timer_rx_HB_system = 50;
-                    else {
+                    if (p_hb.compid == MAV_COMPONENT.MAV_COMP_ID_PAIRING_MANAGER) timer_rx_HB_system = 50;
+                    else if (p_hb.compid == MAV_COMPONENT.MAV_COMP_ID_AUTOPILOT1) {
                         timer_rx_HB_drone = 50;
                         int hb_status = p_hb.system_status;
                         if (hb_status == MAV_STATE_ACTIVE) {
@@ -473,9 +478,41 @@ public class MainActivity extends AppCompatActivity {
                     roll = (float) ((180 * att_pack.roll) /  Math.PI);
                     yaw = (float) ((180 * att_pack.yaw) /  Math.PI);//att_pack.yaw;
 
-                    pitch = Math.round(pitch*10)/10;
-                    roll = Math.round(roll*10)/10;
-                    yaw = Math.round(yaw*10)/10;
+                    pry_updated = true;
+                    break;
+                case msg_attitude_quaternion.MAVLINK_MSG_ID_ATTITUDE_QUATERNION:
+
+                    msg_attitude_quaternion quat_pack = new msg_attitude_quaternion(packet);
+                    float q0 = quat_pack.q1;
+                    float q1 = quat_pack.q2;
+                    float q2 = quat_pack.q3;
+                    float q3 = quat_pack.q4;
+
+//https://github.com/ros/geometry2/blob/589caf083cae9d8fae7effdb910454b4681b9ec1/tf2/include/tf2/impl/utils.h#L87
+                      double sqx = q1 * q1;
+                      double sqy = q2 * q2;
+                      double sqz = q3 * q3;
+                      double sqw = q0 * q0;
+
+                    // Cases derived from https://orbitalstation.wordpress.com/tag/quaternion/
+                    double sarg = -2 * (q1*q3 - q0*q2) / (sqx + sqy + sqz + sqw); /* normalization added from urdfom_headers */
+                    if (sarg <= -0.99999) {
+                        pitch = (float)(-0.5*PI);
+                        roll  = 0;
+                        yaw   = (float)(-2 * atan2(q2, q1));
+                                        } else if (sarg >= 0.99999) {
+                        pitch = (float)(0.5*PI);
+                        roll  = 0;
+                        yaw   = (float)(2 * atan2(q2, q1));
+                                        } else {
+                        pitch = (float)asin(sarg);
+                        roll  = (float)atan2(2 * (q2*q3 + q0*q1), sqw - sqx - sqy + sqz);
+                        yaw   = (float)atan2(2 * (q1*q2 + q0*q3), sqw + sqx - sqy - sqz);
+                    }
+                    pitch *= (float)(180.0/PI);
+                    roll *= (float)(180.0/PI);
+                    yaw *= (float)(180.0/PI);
+
                     pry_updated = true;
                     break;
                 case msg_statustext.MAVLINK_MSG_ID_STATUSTEXT:
@@ -675,6 +712,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if (pry_updated){
                         pry_updated = false;
+
+                        pitch = Math.round(pitch);
+                        roll = Math.round(roll);
+                        yaw = Math.round(yaw);
 
                         tv_position.setText("x=" + pitch + ",y=" + roll + ",z=" + yaw + " ");
                         //Integer imgPitch = Math.round(pitch);

@@ -63,7 +63,7 @@ public class params_activity  extends Activity {
         if (st == 1) {  // if full load
             int i=0;
             for (i=0;i<cntPar;i++) {    // add all parameters to list
-                Param param = new Param(1+i,cntPar,MainActivity.mParams.getParamName(i+1),MainActivity.mParams.getParamValue(i+1),MainActivity.mParams.getParamType(i+1));
+                Param param = new Param(0+0,cntPar,MainActivity.mParams.getParamName(i+0),MainActivity.mParams.getParamValue(i+0),MainActivity.mParams.getParamType(i+0));
                 fList.add(param);
             }
         }
@@ -111,8 +111,8 @@ public class params_activity  extends Activity {
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,int id) {
                                         try {
-                                            wantToSetParam_cntWait = 100;
-                                            wantToSetParam.t_name = param_name;
+                                            wantToSetParam_cntWait = 10;
+                                            wantToSetParam.t_name = param_name;//.substring(0, param_name.length());    //FIXME
                                             wantToSetParam.t_value = Float.valueOf(userInput.getText().toString());
                                             wantToSetParam.t_type = param.t_type;
                                             wantToSetParam.t_index = param.t_index;
@@ -219,7 +219,7 @@ public class params_activity  extends Activity {
             mLV1.setAdapter(adapter);                                                           //new
             fList = new ArrayList<Param>();
             for (i=0; i<cntPar; i++) {
-                Param param = new Param(1+i,cntPar,MainActivity.mParams.getParamName(i+1),MainActivity.mParams.getParamValue(i+1),MainActivity.mParams.getParamType(i+1));
+                Param param = new Param(0+i,cntPar,MainActivity.mParams.getParamName(i+0),MainActivity.mParams.getParamValue(i+0),MainActivity.mParams.getParamType(i+0));
                 fList.add(param);
             }
             mLV1.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);

@@ -28,7 +28,7 @@ public class ParamList {
     static public void setParam(int index, int all, String name, float value, int type)
     {
         int i;
-        if (index < 1) return;
+        if (index < 0) return;
         if (index > all) return;
         if (cntParam != all) {
             status = 0;
@@ -36,12 +36,12 @@ public class ParamList {
             params = new Param[all];
             for (i=0;i<all; i++) {params[i] = new Param(0,0,"",0,0);}
         }
-        params[index-1].t_index = index;
-        params[index-1].t_all = all;
-        params[index-1].t_name = name;
-        params[index-1].t_value = value;
-        params[index-1].t_type = type;
-        params[index-1].status = 1;
+        params[index].t_index = index;
+        params[index].t_all = all;
+        params[index].t_name = name;
+        params[index].t_value = value;
+        params[index].t_type = type;
+        params[index].status = 1;
 
         if (all <= 0) {status = 0; return;}
         int status_probe =1;
@@ -63,17 +63,17 @@ public class ParamList {
     }
     public static String getParamName(int n)
     {
-        return params[n-1].t_name;
+        return params[n].t_name;
     }
     public static float getParamValue(int n)
     {
-        return params[n-1].t_value;
+        return params[n].t_value;
     }
     public static int getParamType(int n)
     {
-        return params[n-1].t_type;
+        return params[n].t_type;
     }
-    public static void deleteParam(int n){ params[n-1].status = 0; status = 0;}
+    public static void deleteParam(int n){ params[n].status = 0; status = 0;}
     public static int getUpdateCnt(){ return updaterCnt;}
     public static int need2getParam()
     {
@@ -81,7 +81,7 @@ public class ParamList {
         if (status == 1) return 0;
         int i=0;
         for (i=0;i<cntParam;i++){
-            if (params[i].status == 0) return (i+1);
+            if (params[i].status == 0) return (i);
         }
         return 0;
     }
