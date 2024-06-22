@@ -84,11 +84,15 @@ public class params_activity  extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                Param param = fList.get(position);
+//                Param param = fList.get(position);
+                int param_type = fList.get(position).t_type;
+                int param_index = position;//fList.get(position).t_index;
+                String param_name = fList.get(position).getName();
+                float param_value = fList.get(position).t_value;
 
-                String param_name = param.getName();
+
                 //float value = param.t_value;
-                Log.d(TAG, "was clicked " + param_name);
+                Log.d(TAG, "was clicked " + param_name + ", index:" + param_index + ", type:" + param_type + ", value:" + param_value);
 
                 LayoutInflater li = LayoutInflater.from(params_activity.this);
                 View promptsView = li.inflate(R.layout.param_edit_value, null);
@@ -101,9 +105,9 @@ public class params_activity  extends Activity {
                 final TextView tv = (TextView) promptsView.findViewById(R.id.tv);
                 tv.setText("set value param: " + param_name);
 
-                if (param.t_type == MAV_PARAM_TYPE.MAV_PARAM_TYPE_INT8 ) userInput.setText(String.valueOf((int)param.t_value));
-                else if (param.t_type == MAV_PARAM_TYPE.MAV_PARAM_TYPE_REAL32 ) userInput.setText(String.valueOf((float)param.t_value));
-                else  userInput.setText(String.valueOf(param.t_value));
+                if (param_type == MAV_PARAM_TYPE.MAV_PARAM_TYPE_INT8 ) userInput.setText(String.valueOf((int)param_value));
+                else if (param_type == MAV_PARAM_TYPE.MAV_PARAM_TYPE_REAL32 ) userInput.setText(String.valueOf((float)param_value));
+                else  userInput.setText(String.valueOf(param_value));
 
                 mDialogBuilder
                         .setCancelable(false)
@@ -111,19 +115,39 @@ public class params_activity  extends Activity {
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,int id) {
                                         try {
-                                            wantToSetParam_cntWait = 10;
+                                            wantToSetParam_cntWait = 30;
                                             wantToSetParam.t_name = param_name;//.substring(0, param_name.length());    //FIXME
                                             wantToSetParam.t_value = Float.valueOf(userInput.getText().toString());
-                                            wantToSetParam.t_type = param.t_type;
-                                            wantToSetParam.t_index = param.t_index;
+                                            wantToSetParam.t_type = param_type;
+                                            wantToSetParam.t_index = param_index;
 
-                                            Log.d(TAG, "set new: " + param.t_index + " value: " + wantToSetParam.t_value);
-                                            MainActivity.mav_param_set(wantToSetParam.t_name, wantToSetParam.t_value, (short)wantToSetParam.t_type);
                                             MainActivity.mParams.deleteParam(wantToSetParam.t_index);
+
+                                            Log.d(TAG, "set new: " + param_index + " value: " + wantToSetParam.t_value);
+                                            MainActivity.mav_param_set(wantToSetParam.t_name, wantToSetParam.t_value, (short)wantToSetParam.t_type);
+
 //                                            MainActivity.mav_param_set(param_name, Float.valueOf(userInput.getText().toString()), (short) param.t_type);
 //                                            MainActivity.mParams.deleteParam(param.t_index);
 
                                             //MainActivity.mav_param_request_read(param_name.getBytes(), (short)1);
+                                        }
+                                        catch (Exception e){
+                                            dialog.cancel();
+                                        }
+                                    }
+                                })
+                        .setNeutralButton("Send Zerro",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        try {
+                                            wantToSetParam_cntWait = 30;
+                                            wantToSetParam.t_name = param_name;
+                                            wantToSetParam.t_value = 0;
+                                            wantToSetParam.t_type = param_type;
+                                            wantToSetParam.t_index = param_index;
+                                            MainActivity.mParams.deleteParam(wantToSetParam.t_index);
+                                            Log.d(TAG, "set new: " + param_index + " value: " + wantToSetParam.t_value);
+                                            MainActivity.mav_param_set(wantToSetParam.t_name, wantToSetParam.t_value, (short)wantToSetParam.t_type);
                                         }
                                         catch (Exception e){
                                             dialog.cancel();
@@ -147,12 +171,12 @@ public class params_activity  extends Activity {
             @Override
             public void onClick(View v) {
                 fList = new ArrayList<Param>();     //fixme
-                mLV1.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                adapter = new params_activity.ParamAdapter(params_activity.this, fList);
-                mLV1.setAdapter(adapter);
+//                mLV1.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+//                adapter = new params_activity.ParamAdapter(params_activity.this, fList);
+                mLV1.setAdapter(null);
+//                mLV1.setAdapter(adapter);
                 MainActivity.mav_param_request_list();
             }
-
         });
 
 
@@ -160,7 +184,7 @@ public class params_activity  extends Activity {
             public void run() {
                 try {
                     while(true){
-                        TimeUnit.MILLISECONDS.sleep(500);
+                        TimeUnit.MILLISECONDS.sleep(100);
                         runOnUiThread(runn1);
                     }
 
@@ -191,60 +215,64 @@ public class params_activity  extends Activity {
         float progress = MainActivity.mParams.getProgressParam();
         int upCnt = MainActivity.mParams.getUpdateCnt();
 
-        //Log.d(TAG, "st " + st + " cntPar " + cntPar + " progress " + progress + " upCnt " + upCnt + ".");
+        try {
 
-        if (wantToSetParam_cntWait>0){
-            wantToSetParam_cntWait--;
-            if (MainActivity.mParams.getParamValue(wantToSetParam.t_index) != wantToSetParam.t_value) {
-                if (wantToSetParam_cntWait == 0){
-                    Toast toast = Toast.makeText(getApplicationContext(), "Failed set value", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
+            //Log.d(TAG, "st " + st + " cntPar " + cntPar + " progress " + progress + " upCnt " + upCnt + ".");
+
+            if (wantToSetParam_cntWait > 0) {
+                wantToSetParam_cntWait--;
+                if (MainActivity.mParams.getParamValue(wantToSetParam.t_index) != wantToSetParam.t_value) {
+                    if (wantToSetParam_cntWait == 0) {
+                        Toast toast = Toast.makeText(getApplicationContext(), "Failed set value", Toast.LENGTH_SHORT);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
+                    } else {
+                        Log.d(TAG, "v " + MainActivity.mParams.getParamValue(wantToSetParam.t_index) + " != " + wantToSetParam.t_value );
+//                    MainActivity.mParams.deleteParam(wantToSetParam.t_index);
+                        // request to set param
+                        MainActivity.mav_param_set(wantToSetParam.t_name, wantToSetParam.t_value, (short) wantToSetParam.t_type);
+                    }
+                } else {
+                    wantToSetParam_cntWait = 0;
                 }
-                else {
-                    MainActivity.mav_param_set(wantToSetParam.t_name, wantToSetParam.t_value, (short) wantToSetParam.t_type);
-                    MainActivity.mParams.deleteParam(wantToSetParam.t_index);
+            }
+
+            textView3.setText("List( load " + Math.round(progress * 100) + "%)");
+            if ((st == 1) && (last_upCnt != upCnt) && (wantToSetParam_cntWait == 0)) {   // if full load and new update
+                timeToReload = 0;
+                last_upCnt = upCnt;
+                int i = 0;
+                Log.d(TAG, "Update List!!!");
+
+                fList = new ArrayList<Param>();
+                for (i = 0; i < cntPar; i++) {
+                    Param param = new Param(0 + i, cntPar, MainActivity.mParams.getParamName(i + 0), MainActivity.mParams.getParamValue(i + 0), MainActivity.mParams.getParamType(i + 0));
+                    fList.add(param);
+                }
+                mLV1.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+                adapter = new params_activity.ParamAdapter(params_activity.this, fList);
+                mLV1.setAdapter(null);  // clear content
+                mLV1.setAdapter(adapter);
+
+            } else if (last_progress == progress) {
+                int need2get = MainActivity.mParams.need2getParam();
+                if (need2get >= 0) {
+                    MainActivity.mav_param_request_read("".getBytes(), (short) need2get);
+                    Log.d(TAG, "Send to get param " + need2get + ".");
                 }
             }
-        }
-
-        textView3.setText("List( load "+ Math.round(progress*100) +"%)");
-        if ((st == 1) && (last_upCnt != upCnt) && (wantToSetParam_cntWait == 0)) {   // if full load and new update
-            timeToReload=0;
-            last_upCnt = upCnt;
-            int i=0;
-            Log.d(TAG, "Update List!!!");
-            mLV1.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);                                  //new
-            adapter = new params_activity.ParamAdapter(params_activity.this, fList);    //new
-            mLV1.setAdapter(adapter);                                                           //new
-            fList = new ArrayList<Param>();
-            for (i=0; i<cntPar; i++) {
-                Param param = new Param(0+i,cntPar,MainActivity.mParams.getParamName(i+0),MainActivity.mParams.getParamValue(i+0),MainActivity.mParams.getParamType(i+0));
-                fList.add(param);
+            if ((st == 0) && (cntPar == 0)) {
+                if (timeToReload++ >= 5) {
+                    timeToReload = 0;
+                    MainActivity.mav_param_request_list();
+                    Log.d(TAG, "mav_param_request_list");
+                }
             }
-            mLV1.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-            adapter = new params_activity.ParamAdapter(this, fList);
-            mLV1.setAdapter(adapter);
-
-//            Intent intent = getIntent();
-//            finish();
-//            startActivity(intent);
+            last_progress = progress;
         }
-        else if (last_progress == progress) {
-            int need2get = MainActivity.mParams.need2getParam();
-            if (need2get>0) {
-                MainActivity.mav_param_request_read("".getBytes(), (short) need2get);
-                Log.d(TAG, "Send to get param " + need2get +  ".");
-            }
+        catch (Exception e){
+            Log.d(TAG, "exception here!!!");
         }
-        if ((st == 0) && (cntPar == 0)){
-            if (timeToReload++>=5){
-                timeToReload=0;
-                MainActivity.mav_param_request_list();
-                Log.d(TAG, "mav_param_request_list");
-            }
-        }
-        last_progress = progress;
     }
 
     protected void onResume() {

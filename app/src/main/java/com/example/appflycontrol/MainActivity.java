@@ -18,6 +18,7 @@ import com.MAVLink.common.msg_param_request_read;
 import com.MAVLink.common.msg_param_set;
 import com.MAVLink.common.msg_param_value;
 import com.MAVLink.common.msg_rc_channels_override;
+import com.MAVLink.common.msg_manual_control;
 import com.MAVLink.common.msg_sys_status;
 import com.MAVLink.common.msg_system_time;
 import com.MAVLink.common.msg_statustext;
@@ -138,6 +139,9 @@ public class MainActivity extends AppCompatActivity {
     static byte mavlink_cnt;
     static int timer_rx_HB_system = 0;
     static int timer_rx_HB_drone = 0;
+    static int timout_connected_drone = 0;
+    static int timout_connected_host = 0;
+    static final int TIMEOUT_VALUE = 30; //50*100 = 5s
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -400,14 +404,16 @@ public class MainActivity extends AppCompatActivity {
     static void parse_byte(byte data){
         MAVLinkPacket packet = mav_parser.mavlink_parse_char(data);
         if (packet != null) {
+            if (packet.compid == MAV_COMPONENT.MAV_COMP_ID_AUTOPILOT1) timout_connected_drone = TIMEOUT_VALUE;
+            if (packet.compid == MAV_COMPONENT.MAV_COMP_ID_PAIRING_MANAGER) timout_connected_host = TIMEOUT_VALUE;
 
             switch (packet.msgid) {
                 case msg_heartbeat.MAVLINK_MSG_ID_HEARTBEAT:
                     msg_heartbeat p_hb = new msg_heartbeat(packet);
                     //Log.d(TAG, "rx HB");
-                    if (p_hb.compid == MAV_COMPONENT.MAV_COMP_ID_PAIRING_MANAGER) timer_rx_HB_system = 50;
+                    if (p_hb.compid == MAV_COMPONENT.MAV_COMP_ID_PAIRING_MANAGER) timer_rx_HB_system = TIMEOUT_VALUE;
                     else if (p_hb.compid == MAV_COMPONENT.MAV_COMP_ID_AUTOPILOT1) {
-                        timer_rx_HB_drone = 50;
+                        timer_rx_HB_drone = TIMEOUT_VALUE;
                         int hb_status = p_hb.system_status;
                         if (hb_status == MAV_STATE_ACTIVE) {
                             //btnState.setText("ARMed");
@@ -459,11 +465,14 @@ public class MainActivity extends AppCompatActivity {
                     msg_param_value rx_param_value = new msg_param_value(packet);
                     //String rx_id = String.valueOf(rx_param_value.param_id);
                     String rx_id = new String(rx_param_value.param_id, StandardCharsets.UTF_8);
-                    rx_id = rx_id.substring(0, rx_id.indexOf('\0'));
+                    int mlen = rx_id.indexOf('\0');
+                    if ((mlen<0) || (mlen>16)) mlen = 15;
+                    if (mlen > rx_id.length()) mlen = rx_id.length();
+                    rx_id = rx_id.substring(0, mlen);
                     Log.d(TAG, "index  " + rx_param_value.param_index + " cnt  " + rx_param_value.param_count +
                             " id " + rx_id + " value " + rx_param_value.param_value + " type " + rx_param_value.param_type);
-                    ParamList.setParam(rx_param_value.param_index, rx_param_value.param_count, rx_id, rx_param_value.param_value, rx_param_value.param_type);
-                    float progress = ParamList.getProgressParam();
+                    mParams.setParam(rx_param_value.param_index, rx_param_value.param_count, rx_id, rx_param_value.param_value, rx_param_value.param_type);
+                    float progress = mParams.getProgressParam();
                     Log.d(TAG, "progress  " + progress + " .  ");
 
                     break;
@@ -521,7 +530,7 @@ public class MainActivity extends AppCompatActivity {
                     String text = st_pack.getText();
                     mav_msg = text.substring(0, len-1);
                     mav_msg_updated = true;
-                    Log.d(TAG, "rx msg: " + text);
+                    Log.d(TAG, "rx msg: " + mav_msg);
                 default:
                     //Log.d(TAG, "rx msg id  " + packet.msgid);
                     break;
@@ -589,6 +598,28 @@ public class MainActivity extends AppCompatActivity {
         mav_send_pack(init_HB.pack());
     }
 
+
+
+    public void mav_send_manual_control(){
+        if (arm_disarm == 1) return;
+
+        msg_manual_control msg_mc = new msg_manual_control(headerPacket);
+        Integer tYaw = (int) (0 - joystick_L.xPosition() * 1000 / 50);//*PITCH_RANGEVALUE/50);
+        Integer tThrottle = (int) (500 + joystick_L.yPosition() * 500 / 50);//*PITCH_RANGEVALUE/50);
+        Integer tRoll = (int) (0 - joystick_R.xPosition() * 1000 / 50);//*PITCH_RANGEVALUE/50);
+        Integer tPitch = (int) (0 + joystick_R.yPosition() * 1000 / 50);//*PITCH_RANGEVALUE/50);
+        Integer tMode = 1;
+        //Log.d(TAG, "Send real x= " + tPitch + " y = " + tRoll);
+        //Log.d(TAG, "Send real x= " + tPitch + " y = " + tRoll + " tThrottle = " + tThrottle + " tYaw = " + tYaw);
+
+        msg_mc.z = tThrottle.shortValue();
+        msg_mc.y = tRoll.shortValue();
+        msg_mc.x = tPitch.shortValue();
+        msg_mc.r = tYaw.shortValue();
+
+        mav_send_pack(msg_mc.pack());
+    }
+
     public void mav_send_rc_channels(){
         if (arm_disarm == 1) return;
 
@@ -601,11 +632,11 @@ public class MainActivity extends AppCompatActivity {
         //Log.d(TAG, "Send real x= " + tPitch + " y = " + tRoll);
         //Log.d(TAG, "Send real x= " + tPitch + " y = " + tRoll + " tThrottle = " + tThrottle + " tYaw = " + tYaw);
 
-        msg_rc.chan1_raw = tThrottle.shortValue();
-        msg_rc.chan2_raw = tYaw.shortValue();
-        msg_rc.chan3_raw = tPitch.shortValue();
-        msg_rc.chan4_raw = tRoll.shortValue();
-        msg_rc.chan5_raw = tMode.shortValue();
+        msg_rc.chan1_raw = tThrottle&0xFFF;//.shortValue();
+        msg_rc.chan2_raw = tYaw&0xFFF;//.shortValue();
+        msg_rc.chan3_raw = tPitch&0xFFF;//.shortValue();
+        msg_rc.chan4_raw = tRoll&0xFFF;//.shortValue();
+        msg_rc.chan5_raw = tMode;//.shortValue();
 
         mav_send_pack(msg_rc.pack());
     }
@@ -636,7 +667,7 @@ public class MainActivity extends AppCompatActivity {
         request_list.target_system = 1;
         request_list.target_component = 1;
 
-        ParamList.clearParam();
+        mParams.clearParam();
         mav_send_pack(request_list.pack());
     }
 
@@ -691,7 +722,8 @@ public class MainActivity extends AppCompatActivity {
                         if (VCP_status == 0) VCP_init();
                         //Log.v(TAG, "VCP status: " + VCP_status);
                     }
-                    mav_send_rc_channels();
+//                    mav_send_rc_channels();
+                    mav_send_manual_control();
                     if (++timer_send_HB>=10){mav_send_HB();timer_send_HB=0;}
 
 
@@ -744,8 +776,8 @@ public class MainActivity extends AppCompatActivity {
 //                        //else if (fragment.connected == TerminalFragment.Connected.True) tv4.setText("Status: VCP Connected");
 //                    else tv_status.setText("Status: disConnected");
 
-                    if (timer_rx_HB_drone>0){timer_rx_HB_drone--; timer_rx_HB_system--; tv_status.setText("Status: Connected");}
-                    else if (timer_rx_HB_system>0){timer_rx_HB_system--; tv_status.setText("Status: Connecting...");}
+                    if (timout_connected_drone>0){timout_connected_drone--; timout_connected_host--; tv_status.setText("Status: Connected");}
+                    else if (timout_connected_host>0){timout_connected_host--; tv_status.setText("Status: Connecting...");}
                     else {tv_status.setText("Status: DisConnected");}
 
                 }

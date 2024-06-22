@@ -25,11 +25,16 @@ public class ParamList {
         cntParam = 0;
         status =0;
     }
+    static public int getParamStatus(int index)
+    {
+        if (index > cntParam) return 0;
+        return params[index].status;
+    }
     static public void setParam(int index, int all, String name, float value, int type)
     {
         int i;
         if (index < 0) return;
-        if (index > all) return;
+        if (index >= all) return;
         if (cntParam != all) {
             status = 0;
             cntParam = all;
@@ -78,11 +83,11 @@ public class ParamList {
     public static int need2getParam()
     {
         if (cntParam == 0)return -1;
-        if (status == 1) return 0;
+        if (status == 1) return -1;
         int i=0;
         for (i=0;i<cntParam;i++){
             if (params[i].status == 0) return (i);
         }
-        return 0;
+        return -1;
     }
 }
